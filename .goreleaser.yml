@@ -75,9 +75,9 @@ dockers:
 
     # Templates of the Docker image names.
     image_templates:
+      - "ghcr.io/firstthumb/huec:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "ghcr.io/firstthumb/huec:latest"
       - "firstthumb/huec:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
-      - "firstthumb/huec:{{ .Major }}.{{ .Minor }}"
-      - "firstthumb/huec:{{ .Major }}"
       - "firstthumb/huec:latest"
 
     # Path to the Dockerfile (from the project root).
