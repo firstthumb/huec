@@ -1,0 +1,114 @@
+project_name: huec
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+  - # Build macOS, Linux and Windows versions
+    main: ./cmd/huec/main.go
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    targets:
+      - linux_amd64
+      - darwin_amd64
+      - darwin_arm64
+      - windows_amd64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+
+# .goreleaser.yml
+brews:
+  - # GitHub repository to push the formula to
+    tap:
+      owner: firstthumb
+      name: homebrew-huec
+
+    # Template for the url which is determined by the given Token (github or gitlab)
+    # Default for github is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    url_template: "https://github.com/firstthumb/huec/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+
+    # Git author used to commit to the repository.
+    # Defaults are shown.
+    commit_author:
+      name: firstthumb
+      email: kocamanerol@gmail.com
+
+    # Folder inside the repository to put the formula.
+    # Default is the root folder.
+    folder: Formula
+
+    # Caveats for the user of your binary.
+    # Default is empty.
+    caveats: "Control Philips Hue lights"
+
+    # Your app's description.
+    # Default is empty.
+    description: "A powerful CLI for controlling Philips Hue lights."
+
+    homepage: https://github.com/firstthumb/huec
+
+    # SPDX identifier of your app's license.
+    # Default is empty.
+    license: "MIT"
+
+    # Packages your package depends on.
+    dependencies:
+      - name: git
+      - name: go
+
+dockers:
+  - # GOOS of the built binary that should be used.
+    goos: linux
+    goarch: amd64
+
+    # Name templates of the built binaries that should be used.
+    ids: ["huec"]
+
+    # Templates of the Docker image names.
+    image_templates:
+      - "firstthumb/huec:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      - "firstthumb/huec:{{ .Major }}.{{ .Minor }}"
+      - "firstthumb/huec:{{ .Major }}"
+      - "firstthumb/huec:latest"
+
+    # Path to the Dockerfile (from the project root).
+    dockerfile: Dockerfile
+
+archives:
+  - # Replacements for GOOS and GOARCH in the archive name.
+    replacements:
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+
+    # Can be used to change the archive formats for specific GOOS.
+    format_overrides:
+      - goos: windows
+        format: zip
+
+    # Additional files/template/globs you want to add to the archive.
+    files:
+      - LICENSE.md
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^*.md:"
