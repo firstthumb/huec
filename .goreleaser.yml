@@ -30,7 +30,7 @@ brews:
   - # GitHub repository to push the formula to
     tap:
       owner: firstthumb
-      name: homebrew-huec
+      name: homebrew-tap
 
     # Template for the url which is determined by the given Token (github or gitlab)
     # Default for github is "https://github.com/<repo_owner>/<repo_name>/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
@@ -59,11 +59,6 @@ brews:
     # SPDX identifier of your app's license.
     # Default is empty.
     license: "MIT"
-
-    # Packages your package depends on.
-    dependencies:
-      - name: git
-      - name: go
 
 dockers:
   - # GOOS of the built binary that should be used.
