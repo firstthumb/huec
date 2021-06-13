@@ -5,11 +5,17 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/firstthumb/go-hue"
 	"github.com/firstthumb/huec/pkg/config"
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	callbackURL = "http://localhost:8181/callback"
 )
 
 func NewInitCmd() *cobra.Command {
@@ -37,19 +43,55 @@ func runInitCmd() error {
 
 	host, err := hue.Discover()
 	if err != nil {
-		return fmt.Errorf("unable to discover bridge on the network: %w", err)
+		fmt.Println("Unable to discover bridge on the network.")
+		fmt.Println("Trying remote api...")
+
+		return remoteInit(cfgFile)
 	}
 
 	fmt.Printf("Found => %s\n", host)
 
-	client, err := hue.CreateUser(host, "huec_1", &hue.ClientOptions{Verbose: false})
+	client, err := hue.CreateUser(host, "huec_user", &hue.ClientOptions{})
 	if err != nil {
 		return fmt.Errorf("unable to create user on bridge: %w", err)
 	}
 
 	fmt.Printf("Client(%s) is created.\n", client.GetClientID())
 
-	if err = saveConfig(cfgFile, &config.Config{Host: client.GetHost(), ClientID: client.GetClientID()}); err != nil {
+	if err = saveConfig(cfgFile, &config.Config{
+		Host:     client.GetHost(),
+		ClientID: client.GetClientID(),
+	}); err != nil {
+		return fmt.Errorf("unable to save configuration: %w", err)
+	}
+
+	return nil
+}
+
+func remoteInit(cfgFile string) error {
+	auth := hue.NewAuthenticator(callbackURL)
+	client, err := auth.Authenticate()
+	if err != nil {
+		return fmt.Errorf("unable to login: %w", err)
+	}
+
+	_, err = client.CreateRemoteUser()
+	if err != nil {
+		return fmt.Errorf("unable to create user: %w", err)
+	}
+
+	fmt.Printf("Client(%s) is created.\n", client.GetClientID())
+
+	token := auth.GetToken()
+
+	if err = saveConfig(cfgFile, &config.Config{
+		Host:         "",
+		ClientID:     client.GetClientID(),
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		Expiry:       token.Expiry.Unix(),
+		RedirectURL:  callbackURL,
+	}); err != nil {
 		return fmt.Errorf("unable to save configuration: %w", err)
 	}
 
@@ -83,7 +125,20 @@ func setupClient() (*hue.Client, error) {
 		return nil, err
 	}
 
-	client := hue.NewClient(cfg.Host, cfg.ClientID, &hue.ClientOptions{Verbose: false})
+	if len(cfg.Host) == 0 {
+		// Remote Api
+		auth := hue.NewAuthenticator(cfg.RedirectURL)
+		client := auth.NewClient(&oauth2.Token{
+			AccessToken:  cfg.AccessToken,
+			RefreshToken: cfg.RefreshToken,
+			TokenType:    "Bearer",
+			Expiry:       time.Unix(cfg.Expiry, 0),
+		})
+		client.Login(cfg.ClientID)
 
-	return client, nil
+		return client, nil
+	} else {
+		// Local Api
+		return hue.NewClient(cfg.Host, cfg.ClientID, &hue.ClientOptions{}), nil
+	}
 }

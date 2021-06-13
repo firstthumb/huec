@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/firstthumb/go-hue"
 	"github.com/spf13/cobra"
 )
 
@@ -37,8 +36,7 @@ func runLightTurnOnCmd(args []string) error {
 	}
 
 	for _, arg := range args {
-		status := true
-		if _, _, err = client.Light.SetState(context.Background(), arg, &hue.SetStateRequest{On: &status}); err != nil {
+		if err = client.Lights.TurnOn(context.Background(), arg); err != nil {
 			fmt.Fprintf(os.Stderr, "unable to turn on light %q: %v\n", arg, err)
 			continue
 		}

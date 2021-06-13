@@ -9,8 +9,12 @@ import (
 )
 
 type Config struct {
-	Host     string `yaml:"host"`
-	ClientID string `yaml:"clientId"`
+	Host         string `yaml:"host"`
+	ClientID     string `yaml:"clientId"`
+	AccessToken  string `yaml:"accessToken"`
+	RefreshToken string `yaml:"refreshToken"`
+	RedirectURL  string `yaml:"redirectUrl"`
+	Expiry       int64  `yaml:"expiry"`
 }
 
 func Read() (*Config, error) {

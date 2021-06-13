@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
@@ -42,7 +43,7 @@ func runListLightsCmd() error {
 		return fmt.Errorf("unable to setup Hue client: %w", err)
 	}
 
-	lights, _, err := client.Light.GetAll(context.Background())
+	lights, _, err := client.Lights.GetAll(context.Background())
 	if err != nil {
 		return fmt.Errorf("unable to list lights: %w", err)
 	}
@@ -52,10 +53,14 @@ func runListLightsCmd() error {
 
 	fmt.Fprintln(tw, "ID\tNAME\tON\tBRIGHTNESS (%)")
 
-	for _, light := range lights {
-		bri := math.Round(float64(light.GetBri()) / 254 * 100)
+	sort.SliceStable(lights, func(i, j int) bool {
+		return lights[i].ID < lights[j].ID
+	})
 
-		fmt.Fprintf(tw, "%v\t%v\t%v\t%v\n", light.GetID(), light.GetName(), light.IsOn(), int(bri))
+	for _, light := range lights {
+		bri := math.Round(float64(light.State.Bri) / 254 * 100)
+
+		fmt.Fprintf(tw, "%v\t%v\t%v\t%v\n", light.ID, light.Name, light.State.On, int(bri))
 	}
 
 	return nil
