@@ -24,9 +24,10 @@ builds:
       - CGO_ENABLED=0
     ldflags:
       - -s -w
-      - -X main.hueClientID={{ .Env.HUE_CLIENT_ID }}
-      - -X main.hueClientSecret={{ .Env.HUE_CLIENT_SECRET }}
-      - -X main.hueAppID={{ .Env.HUE_APP_ID }}
+      - -X github.com/firstthumb/huec/context.Version={{.Version}}
+      - -X github.com/firstthumb/huec/context.hueClientId={{.Env.HUE_CLIENT_ID}}
+      - -X github.com/firstthumb/huec/context.hueClientSecret={{.Env.HUE_CLIENT_SECRET}}
+      - -X github.com/firstthumb/huec/context.hueAppId={{.Env.HUE_APP_ID}}
 
 # .goreleaser.yml
 brews:
@@ -62,24 +63,6 @@ brews:
     # SPDX identifier of your app's license.
     # Default is empty.
     license: "MIT"
-
-dockers:
-  - # GOOS of the built binary that should be used.
-    goos: linux
-    goarch: amd64
-
-    # Name templates of the built binaries that should be used.
-    ids: ["huec"]
-
-    # Templates of the Docker image names.
-    image_templates:
-      - "ghcr.io/firstthumb/huec:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
-      - "ghcr.io/firstthumb/huec:latest"
-      - "firstthumb/huec:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
-      - "firstthumb/huec:latest"
-
-    # Path to the Dockerfile (from the project root).
-    dockerfile: Dockerfile
 
 archives:
   - # Replacements for GOOS and GOARCH in the archive name.

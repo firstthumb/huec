@@ -3,10 +3,9 @@ package commands
 import (
 	"fmt"
 
+	hc "github.com/firstthumb/huec/context"
 	"github.com/spf13/cobra"
 )
-
-var version = "v1"
 
 func NewVersionCmd() *cobra.Command {
 	return &cobra.Command{
@@ -14,7 +13,7 @@ func NewVersionCmd() *cobra.Command {
 		Short: "Prints the version",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Version:\t%v\n", version)
+			fmt.Printf("Version:\t%v\n", hc.Version)
 		},
 	}
 }
