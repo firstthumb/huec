@@ -8,6 +8,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	hueClientId     = ""
+	hueClientSecret = ""
+	hueAppId        = ""
+)
+
+func init() {
+	os.Setenv("HUE_CLIENT_ID", hueClientId)
+	os.Setenv("HUE_CLIENT_SECRET", hueClientSecret)
+	os.Setenv("HUE_APP_ID", hueAppId)
+}
+
 func Huec() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "huec",
