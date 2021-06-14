@@ -46,6 +46,9 @@ jobs:
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GO_RELEASER_GITHUB_TOKEN }}
+          HUE_CLIENT_ID: ${{ secrets.HUE_CLIENT_ID }}
+          HUE_CLIENT_SECRET: ${{ secrets.HUE_CLIENT_SECRET }}
+          HUE_APP_ID: ${{ secrets.HUE_APP_ID }}
 
       - name: Clear
         if: always()

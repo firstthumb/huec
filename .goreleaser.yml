@@ -22,6 +22,9 @@ builds:
       - windows_amd64
     env:
       - CGO_ENABLED=0
+      - HUE_CLIENT_ID={{ .Env.HUE_CLIENT_ID }}
+      - HUE_CLIENT_SECRET={{ .Env.HUE_CLIENT_SECRET }}
+      - HUE_APP_ID={{ .Env.HUE_APP_ID }}
     ldflags:
       - -s -w
 
